@@ -1,929 +1,1001 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Rudresh Kumar Sahu — Finance & Analytics</title>
-  <meta name="description" content="AML specialist and CFA candidate building toward valuation and equity research. Finance projects, market analysis, and creative work." />
-  <meta property="og:title" content="Rudresh Kumar Sahu — Finance & Analytics" />
-  <meta property="og:description" content="AML specialist and CFA candidate building toward valuation and equity research." />
-  <meta property="og:type" content="website" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=Space+Grotesk:wght@400;500;600;700&family=Oswald:wght@300;400;700&display=swap" rel="stylesheet" />
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --bg:        #0A0A0A;
-      --bg2:       #0F0F0F;
-      --surface:   #141414;
-      --border:    #1E1E1E;
-      --muted:     #C9C5BC;
-      --text-dim:  #D6D3CB;
-      --text:      #D6D3CB;
-      --bright:    #E8E6E0;
-      --emerald:   #10B981;
-      --emerald-d: #059669;
-      --font-mono: 'IBM Plex Mono', monospace;
-      --font-disp: 'Space Grotesk', sans-serif;
-    }
-
-    html { scroll-behavior: smooth; }
-
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--font-mono);
-      font-size: 14px;
-      line-height: 1.7;
-      -webkit-font-smoothing: antialiased;
-      max-width: 1300px;
-      margin: 0 auto;
-    }
-
-    /* ── GRID OVERLAY ── */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image:
-        linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
-      background-size: 48px 48px;
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    /* ── NAV ── */
-    nav {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      z-index: 100;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 18px 48px;
-      border-bottom: 1px solid var(--border);
-      background: rgba(10,10,10,0.85);
-      backdrop-filter: blur(12px);
-    }
-
-    .nav-logo {
-      font-family: var(--font-mono);
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--emerald);
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      text-decoration: none;
-    }
-
-    .nav-links {
-      display: flex;
-      gap: 32px;
-      list-style: none;
-    }
-
-    .nav-links a {
-      font-family: var(--font-mono);
-      font-size: 11px;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--text-dim);
-      text-decoration: none;
-      transition: color 0.2s;
-      position: relative;
-      padding-bottom: 4px;
-    }
-
-    .nav-links a::after {
-      content: '';
-      position: absolute;
-      left: 0;
-      bottom: 0;
-      width: 0;
-      height: 1px;
-      background: var(--emerald);
-      transition: width 0.25s ease;
-    }
-
-    .nav-links a:hover { color: var(--bright); }
-    .nav-links a:hover::after { width: 100%; }
-
-    /* ── HERO ── */
-    #hero {
-      position: relative;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      padding: 120px 48px 80px;
-      z-index: 1;
-    }
-
-    .hero-eyebrow {
-      font-size: 11px;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--emerald);
-      margin-bottom: 28px;
-    }
-
-    .hero-name {
-      font-family: var(--font-disp);
-      font-size: clamp(40px, 6vw, 88px);
-      font-weight: 700;
-      color: var(--bright);
-      line-height: 1.1;
-      letter-spacing: -0.02em;
-      margin-bottom: 28px;
-    }
-
-    /* ticker */
-    .hero-ticker {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 40px;
-    }
-
-    .ticker-label {
-      font-size: 11px;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
-
-    .ticker-value {
-      font-family: var(--font-mono);
-      font-size: 15px;
-      font-weight: 500;
-      color: var(--emerald);
-      min-width: 280px;
-    }
-
-    .cursor {
-      display: inline-block;
-      width: 2px;
-      height: 1em;
-      background: var(--emerald);
-      margin-left: 2px;
-      vertical-align: middle;
-      animation: blink 1s step-end infinite;
-    }
-
-    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
-
-    .hero-desc {
-      max-width: 560px;
-      font-size: 13px;
-      color: var(--text);
-      line-height: 1.8;
-      margin-bottom: 48px;
-    }
-
-    .hero-actions {
-      display: flex;
-      gap: 16px;
-      flex-wrap: wrap;
-    }
-
-    .hero-cta {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      padding: 12px 24px;
-      border: 1px solid var(--emerald);
-      color: var(--emerald);
-      font-family: var(--font-mono);
-      font-size: 11px;
-      font-weight: 500;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      text-decoration: none;
-      transition: background 0.2s, color 0.2s, border-color 0.2s;
-    }
-
-    .hero-cta:hover {
-      background: var(--emerald);
-      color: var(--bg);
-    }
-
-    .hero-cta--ghost {
-      border-color: var(--border);
-      color: var(--text);
-    }
-
-    .hero-cta--ghost:hover {
-      background: var(--surface);
-      color: var(--bright);
-      border-color: var(--text-dim);
-    }
-
-    .hero-stats {
-      display: flex;
-      gap: 48px;
-      margin-top: 56px;
-      flex-wrap: wrap;
-    }
-
-    .stat { text-align: left; }
-
-    .stat-num {
-      font-family: 'Oswald', sans-serif;
-      font-size: 28px;
-      font-weight: 900;
-      color: var(--bright);
-      line-height: 1;
-    }
-
-    .stat-label {
-      font-size: 10px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-top: 4px;
-    }
-
-    /* ── SECTIONS ── */
-    section {
-      position: relative;
-      z-index: 1;
-      padding: 96px 48px;
-      border-top: 1px solid var(--border);
-    }
-
-    .section-header {
-      display: flex;
-      align-items: baseline;
-      gap: 16px;
-      margin-bottom: 64px;
-    }
-
-    .section-tag {
-      font-size: 10px;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--emerald);
-    }
-
-    .section-title {
-      font-family: var(--font-disp);
-      font-size: clamp(28px, 4vw, 48px);
-      font-weight: 600;
-      color: var(--bright);
-      letter-spacing: -0.01em;
-    }
-
-    /* ── ABOUT ── */
-    .about-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 64px;
-      max-width: 900px;
-    }
-
-    .about-block h3 {
-      font-family: var(--font-mono);
-      font-size: 10px;
-      font-weight: 500;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--emerald);
-      margin-bottom: 16px;
-    }
-
-    .about-block p {
-      font-size: 13px;
-      color: var(--text);
-      line-height: 1.8;
-    }
-
-    .about-timeline {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-
-    .timeline-item {
-      display: grid;
-      grid-template-columns: 100px 1fr;
-      gap: 16px;
-      padding-bottom: 20px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .timeline-item:last-child { border-bottom: none; padding-bottom: 0; }
-
-    .timeline-year {
-      font-size: 11px;
-      color: var(--muted);
-      padding-top: 2px;
-    }
-
-    .timeline-role {
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--bright);
-    }
-
-    .timeline-org {
-      font-size: 12px;
-      color: var(--text-dim);
-      margin-top: 2px;
-    }
-
-    /* ── PROJECTS TABLE ── */
-    .projects-table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    .projects-table thead tr {
-      border-bottom: 1px solid var(--border);
-    }
-
-    .projects-table th {
-      font-size: 10px;
-      font-weight: 500;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--muted);
-      padding: 0 0 16px;
-      text-align: left;
-    }
-
-    .projects-table th:last-child { text-align: right; }
-
-    .projects-table tbody tr {
-      border-bottom: 1px solid var(--border);
-      transition: background 0.15s;
-      cursor: pointer;
-    }
-
-    .projects-table tbody tr:hover { background: var(--surface); }
-
-    .projects-table td {
-      padding: 24px 0;
-      vertical-align: top;
-    }
-
-    .proj-name {
-      font-family: var(--font-disp);
-      font-size: 18px;
-      font-weight: 600;
-      color: var(--bright);
-      margin-bottom: 4px;
-    }
-
-    .proj-desc {
-      font-size: 12px;
-      color: var(--text);
-      max-width: 420px;
-    }
-
-    .proj-tag {
-      display: inline-block;
-      font-size: 10px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--emerald);
-      border: 1px solid var(--emerald-d);
-      padding: 3px 8px;
-      margin-right: 6px;
-      margin-top: 10px;
-    }
-
-    .proj-status {
-      font-size: 11px;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      padding: 4px 10px;
-      display: inline-block;
-    }
-
-    .proj-status.live {
-      color: var(--emerald);
-      border: 1px solid var(--emerald-d);
-    }
-
-    .proj-status.wip {
-      color: var(--muted);
-      border: 1px solid var(--border);
-    }
-
-    .proj-link {
-      font-size: 11px;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--text-dim);
-      text-decoration: none;
-      transition: color 0.2s;
-      display: block;
-      text-align: right;
-      margin-top: 4px;
-    }
-
-    .proj-link:hover { color: var(--emerald); }
-
-    /* ── SKILLS ── */
-    .skills-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1px;
-      background: var(--border);
-      max-width: 900px;
-    }
-
-    .skill-cell {
-      background: var(--bg);
-      padding: 32px;
-    }
-
-    .skill-cell:hover { background: var(--surface); }
-
-    .skill-category {
-      font-size: 10px;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--emerald);
-      margin-bottom: 16px;
-    }
-
-    .skill-list {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .skill-list li {
-      font-size: 13px;
-      color: var(--text);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .skill-list li::before {
-      content: '';
-      display: inline-block;
-      width: 4px;
-      height: 4px;
-      background: var(--emerald);
-      flex-shrink: 0;
-    }
-
-    /* ── ART / HOBBIES ── */
-    .extra-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
-      max-width: 1100px;
-    }
-
-    .extra-card {
-      border: 1px solid var(--border);
-      padding: 28px;
-      transition: border-color 0.25s, transform 0.25s, background 0.25s;
-    }
-
-    .extra-card:hover {
-      border-color: var(--emerald-d);
-      background: var(--surface);
-      transform: translateY(-4px);
-    }
-
-    .extra-card-tag {
-      font-size: 10px;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--emerald);
-      margin-bottom: 14px;
-    }
-
-    .extra-card p {
-      font-size: 13px;
-      color: var(--text);
-      line-height: 1.8;
-    }
-
-    @media (max-width: 900px) {
-      .extra-grid { grid-template-columns: 1fr; }
-    }
-
-    /* ── SCROLL REVEAL ── */
-    .reveal {
-      opacity: 0;
-      transform: translateY(24px);
-      transition: opacity 0.6s ease, transform 0.6s ease;
-    }
-
-    .reveal.is-visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .reveal { opacity: 1; transform: none; transition: none; }
-    }
-
-    /* ── CONTACT ── */
-    #contact {
-      min-height: 50vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-
-    .contact-line {
-      font-family: var(--font-disp);
-      font-size: clamp(32px, 5vw, 64px);
-      font-weight: 600;
-      color: var(--bright);
-      line-height: 1.1;
-      letter-spacing: -0.01em;
-      max-width: 700px;
-      margin-bottom: 48px;
-    }
-
-    .contact-line span { color: var(--emerald); }
-
-    .contact-links {
-      display: flex;
-      gap: 48px;
-      flex-wrap: wrap;
-    }
-
-    .contact-item {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .contact-item-label {
-      font-size: 10px;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
-
-    .contact-item a {
-      font-size: 13px;
-      color: var(--text);
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-
-    .contact-item a:hover { color: var(--emerald); }
-
-    /* ── RESPONSIVE ── */
-    @media (max-width: 768px) {
-      nav { padding: 16px 24px; }
-      .nav-links { gap: 20px; }
-      #hero, section { padding-left: 24px; padding-right: 24px; }
-      .about-grid { grid-template-columns: 1fr; gap: 40px; }
-      .skills-grid { grid-template-columns: 1fr; }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .cursor { animation: none; opacity: 1; }
-    }
-  </style>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Rudresh Kumar Sahu — Finance & Analytics</title>
+    <meta name="description"
+          content="AML specialist and CFA candidate building toward valuation and equity research. Finance projects, market analysis, and creative work."/>
+    <meta property="og:title" content="Rudresh Kumar Sahu — Finance & Analytics"/>
+    <meta property="og:description"
+          content="AML specialist and CFA candidate building toward valuation and equity research."/>
+    <meta property="og:type" content="website"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=Space+Grotesk:wght@400;500;600;700&family=Oswald:wght@300;400;700&display=swap"
+          rel="stylesheet"/>
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #0A0A0A;
+            --bg2: #0F0F0F;
+            --surface: #141414;
+            --border: #1E1E1E;
+            --muted: #C9C5BC;
+            --text-dim: #D6D3CB;
+            --text: #D6D3CB;
+            --bright: #E8E6E0;
+            --emerald: #10B981;
+            --emerald-d: #059669;
+            --font-mono: 'IBM Plex Mono', monospace;
+            --font-disp: 'Space Grotesk', sans-serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font-mono);
+            font-size: 14px;
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        /* ── GRID OVERLAY ── */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+            background-size: 48px 48px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ── NAV ── */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 48px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(10, 10, 10, 0.85);
+            backdrop-filter: blur(12px);
+        }
+
+        .nav-logo {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--emerald);
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: color 0.2s;
+            position: relative;
+            padding-bottom: 4px;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 0;
+            height: 1px;
+            background: var(--emerald);
+            transition: width 0.25s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--bright);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* ── HERO ── */
+        #hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 120px 48px 80px;
+            z-index: 1;
+        }
+
+        .hero-eyebrow {
+            font-size: 11px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--emerald);
+            margin-bottom: 28px;
+        }
+
+        .hero-name {
+            font-family: var(--font-disp);
+            font-size: clamp(40px, 6vw, 88px);
+            font-weight: 700;
+            color: var(--bright);
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+            margin-bottom: 28px;
+        }
+
+        /* ticker */
+        .hero-ticker {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 40px;
+        }
+
+        .ticker-label {
+            font-size: 11px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .ticker-value {
+            font-family: var(--font-mono);
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--emerald);
+            min-width: 280px;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 2px;
+            height: 1em;
+            background: var(--emerald);
+            margin-left: 2px;
+            vertical-align: middle;
+            animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% {
+                opacity: 1
+            }
+            50% {
+                opacity: 0
+            }
+        }
+
+        .hero-desc {
+            max-width: 560px;
+            font-size: 13px;
+            color: var(--text);
+            line-height: 1.8;
+            margin-bottom: 48px;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .hero-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 24px;
+            border: 1px solid var(--emerald);
+            color: var(--emerald);
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            text-decoration: none;
+            transition: background 0.2s, color 0.2s, border-color 0.2s;
+        }
+
+        .hero-cta:hover {
+            background: var(--emerald);
+            color: var(--bg);
+        }
+
+        .hero-cta--ghost {
+            border-color: var(--border);
+            color: var(--text);
+        }
+
+        .hero-cta--ghost:hover {
+            background: var(--surface);
+            color: var(--bright);
+            border-color: var(--text-dim);
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 48px;
+            margin-top: 56px;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            text-align: left;
+        }
+
+        .stat-num {
+            font-family: 'Oswald', sans-serif;
+            font-size: 28px;
+            font-weight: 900;
+            color: var(--bright);
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 10px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+
+        /* ── SECTIONS ── */
+        section {
+            position: relative;
+            z-index: 1;
+            padding: 96px 48px;
+            border-top: 1px solid var(--border);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: baseline;
+            gap: 16px;
+            margin-bottom: 64px;
+        }
+
+        .section-tag {
+            font-size: 10px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--emerald);
+        }
+
+        .section-title {
+            font-family: var(--font-disp);
+            font-size: clamp(28px, 4vw, 48px);
+            font-weight: 600;
+            color: var(--bright);
+            letter-spacing: -0.01em;
+        }
+
+        /* ── ABOUT ── */
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 64px;
+            max-width: 900px;
+        }
+
+        .about-block h3 {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--emerald);
+            margin-bottom: 16px;
+        }
+
+        .about-block p {
+            font-size: 13px;
+            color: var(--text);
+            line-height: 1.8;
+        }
+
+        .about-timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .timeline-item {
+            display: grid;
+            grid-template-columns: 100px 1fr;
+            gap: 16px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .timeline-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .timeline-year {
+            font-size: 11px;
+            color: var(--muted);
+            padding-top: 2px;
+        }
+
+        .timeline-role {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--bright);
+        }
+
+        .timeline-org {
+            font-size: 12px;
+            color: var(--text-dim);
+            margin-top: 2px;
+        }
+
+        /* ── PROJECTS TABLE ── */
+        .projects-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .projects-table thead tr {
+            border-bottom: 1px solid var(--border);
+        }
+
+        .projects-table th {
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--muted);
+            padding: 0 0 16px;
+            text-align: left;
+        }
+
+        .projects-table th:last-child {
+            text-align: right;
+        }
+
+        .projects-table tbody tr {
+            border-bottom: 1px solid var(--border);
+            transition: background 0.15s;
+            cursor: pointer;
+        }
+
+        .projects-table tbody tr:hover {
+            background: var(--surface);
+        }
+
+        .projects-table td {
+            padding: 24px 0;
+            vertical-align: top;
+        }
+
+        .proj-name {
+            font-family: var(--font-disp);
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--bright);
+            margin-bottom: 4px;
+        }
+
+        .proj-desc {
+            font-size: 12px;
+            color: var(--text);
+            max-width: 420px;
+        }
+
+        .proj-tag {
+            display: inline-block;
+            font-size: 10px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--emerald);
+            border: 1px solid var(--emerald-d);
+            padding: 3px 8px;
+            margin-right: 6px;
+            margin-top: 10px;
+        }
+
+        .proj-status {
+            font-size: 11px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 4px 10px;
+            display: inline-block;
+        }
+
+        .proj-status.live {
+            color: var(--emerald);
+            border: 1px solid var(--emerald-d);
+        }
+
+        .proj-status.wip {
+            color: var(--muted);
+            border: 1px solid var(--border);
+        }
+
+        .proj-link {
+            font-size: 11px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: color 0.2s;
+            display: block;
+            text-align: right;
+            margin-top: 4px;
+        }
+
+        .proj-link:hover {
+            color: var(--emerald);
+        }
+
+        /* ── SKILLS ── */
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1px;
+            background: var(--border);
+            max-width: 900px;
+        }
+
+        .skill-cell {
+            background: var(--bg);
+            padding: 32px;
+        }
+
+        .skill-cell:hover {
+            background: var(--surface);
+        }
+
+        .skill-category {
+            font-size: 10px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--emerald);
+            margin-bottom: 16px;
+        }
+
+        .skill-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .skill-list li {
+            font-size: 13px;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .skill-list li::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 4px;
+            background: var(--emerald);
+            flex-shrink: 0;
+        }
+
+        /* ── ART / HOBBIES ── */
+        .extra-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            max-width: 1100px;
+        }
+
+        .extra-card {
+            border: 1px solid var(--border);
+            padding: 28px;
+            transition: border-color 0.25s, transform 0.25s, background 0.25s;
+        }
+
+        .extra-card:hover {
+            border-color: var(--emerald-d);
+            background: var(--surface);
+            transform: translateY(-4px);
+        }
+
+        .extra-card-tag {
+            font-size: 10px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--emerald);
+            margin-bottom: 14px;
+        }
+
+        .extra-card p {
+            font-size: 13px;
+            color: var(--text);
+            line-height: 1.8;
+        }
+
+        @media (max-width: 900px) {
+            .extra-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ── SCROLL REVEAL ── */
+        .reveal {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .reveal.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .reveal {
+                opacity: 1;
+                transform: none;
+                transition: none;
+            }
+        }
+
+        /* ── CONTACT ── */
+        #contact {
+            min-height: 50vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .contact-line {
+            font-family: var(--font-disp);
+            font-size: clamp(32px, 5vw, 64px);
+            font-weight: 600;
+            color: var(--bright);
+            line-height: 1.1;
+            letter-spacing: -0.01em;
+            max-width: 700px;
+            margin-bottom: 48px;
+        }
+
+        .contact-line span {
+            color: var(--emerald);
+        }
+
+        .contact-links {
+            display: flex;
+            gap: 48px;
+            flex-wrap: wrap;
+        }
+
+        .contact-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .contact-item-label {
+            font-size: 10px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .contact-item a {
+            font-size: 13px;
+            color: var(--text);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .contact-item a:hover {
+            color: var(--emerald);
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 768px) {
+            nav {
+                padding: 16px 24px;
+            }
+
+            .nav-links {
+                gap: 20px;
+            }
+
+            #hero, section {
+                padding-left: 24px;
+                padding-right: 24px;
+            }
+
+            .about-grid {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+
+            .skills-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .cursor {
+                animation: none;
+                opacity: 1;
+            }
+        }
+    </style>
 </head>
 <body>
 
-  <!-- NAV -->
-  <nav>
+<!-- NAV -->
+<nav>
     <a href="#hero" class="nav-logo">Rudresh.fin</a>
     <ul class="nav-links">
-      <li><a href="#about">About</a></li>
-      <li><a href="#projects">Projects</a></li>
-      <li><a href="#skills">Skills</a></li>
-      <li><a href="#art">Art</a></li>
-      <li><a href="#contact">Contact</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#projects">Projects</a></li>
+        <li><a href="#skills">Skills</a></li>
+        <li><a href="#art">Art</a></li>
+        <li><a href="#contact">Contact</a></li>
     </ul>
-  </nav>
+</nav>
 
-  <!-- HERO -->
-  <section id="hero">
+<!-- HERO -->
+<section id="hero">
     <p class="hero-eyebrow">Finance · Analytics · Valuation</p>
     <h1 class="hero-name">Rudresh Kumar Sahu</h1>
 
     <div class="hero-ticker">
-      <span class="ticker-label">Role</span>
-      <span class="ticker-value" id="ticker-text"><span class="cursor"></span></span>
+        <span class="ticker-label">Role</span>
+        <span class="ticker-value" id="ticker-text"><span class="cursor"></span></span>
     </div>
 
     <p class="hero-desc">
-      AML specialist and CFA candidate building toward valuation and equity research.
-      I combine regulatory finance depth with data tools to model, screen, and communicate
-      complex financial ideas clearly.
+        AML specialist and CFA candidate building toward valuation and equity research.
+        I combine regulatory finance depth with data tools to model, screen, and communicate
+        complex financial ideas clearly.
     </p>
 
     <div class="hero-actions">
-      <a href="#projects" class="hero-cta">View projects →</a>
-      <a href="resume.pdf" class="hero-cta hero-cta--ghost" download>Download résumé</a>
+        <a href="#projects" class="hero-cta">View projects →</a>
+        <a href="resume.pdf" class="hero-cta hero-cta--ghost" download>Download résumé</a>
     </div>
 
     <div class="hero-stats">
-      <div class="stat">
-        <div class="stat-num">2.5+</div>
-        <div class="stat-label">Years at Deloitte</div>
-      </div>
-      <div class="stat">
-        <div class="stat-num">CFA</div>
-        <div class="stat-label">L2 Candidate</div>
-      </div>
-      <div class="stat">
-        <div class="stat-num">MBA</div>
-        <div class="stat-label">XIMB</div>
-      </div>
+        <div class="stat">
+            <div class="stat-num">2.5+</div>
+            <div class="stat-label">Years at Deloitte</div>
+        </div>
+        <div class="stat">
+            <div class="stat-num">CFA</div>
+            <div class="stat-label">L2 Candidate</div>
+        </div>
+        <div class="stat">
+            <div class="stat-num">MBA</div>
+            <div class="stat-label">XIMB</div>
+        </div>
     </div>
-  </section>
+</section>
 
-  <!-- ABOUT -->
-  <section id="about">
+<!-- ABOUT -->
+<section id="about">
     <div class="section-header">
-      <span class="section-tag">Background</span>
-      <h2 class="section-title">About</h2>
+        <span class="section-tag">Background</span>
+        <h2 class="section-title">About</h2>
     </div>
     <div class="about-grid">
-      <div class="about-block">
-        <h3>Current</h3>
-        <p>
-          Consultant L2 at Deloitte USI within Regulatory Risk &amp; Compliance,
-          advising US bank clients on AML programs — transaction monitoring,
-          typology analysis, and control framework design. Moving toward
-          valuation and financial modeling as the next chapter.
-        </p>
-        <p style="margin-top: 16px;">
-          Day to day, that means reviewing alerts against typology libraries,
-          documenting control gaps for client audit teams, and translating
-          regulatory requirements into practical monitoring logic — the same
-          rigor I'm now applying to company valuation and equity analysis.
-        </p>
-      </div>
-      <div class="about-block">
-        <div class="about-timeline">
-          <div class="timeline-item">
-            <span class="timeline-year">2023–now</span>
-            <div>
-              <div class="timeline-role">Consultant L2</div>
-              <div class="timeline-org">Deloitte USI · RRC</div>
-            </div>
-          </div>
-          <div class="timeline-item">
-            <span class="timeline-year">CFA</span>
-            <div>
-              <div class="timeline-role">Level 2 Candidate</div>
-              <div class="timeline-org">CFA Institute</div>
-            </div>
-          </div>
-          <div class="timeline-item">
-            <span class="timeline-year">MBA</span>
-            <div>
-              <div class="timeline-role">Master of Business Administration</div>
-              <div class="timeline-org">Xavier Institute of Management, Bhubaneswar</div>
-            </div>
-          </div>
+        <div class="about-block">
+            <h3>Current</h3>
+            <p>
+                Consultant L2 at Deloitte USI within Regulatory Risk &amp; Compliance,
+                advising US bank clients on AML programs — transaction monitoring,
+                typology analysis, and control framework design. Moving toward
+                valuation and financial modeling as the next chapter.
+            </p>
+            <p style="margin-top: 16px;">
+                Day to day, that means reviewing alerts against typology libraries,
+                documenting control gaps for client audit teams, and translating
+                regulatory requirements into practical monitoring logic — the same
+                rigor I'm now applying to company valuation and equity analysis.
+            </p>
         </div>
-      </div>
+        <div class="about-block">
+            <div class="about-timeline">
+                <div class="timeline-item">
+                    <span class="timeline-year">2023–now</span>
+                    <div>
+                        <div class="timeline-role">Consultant L2</div>
+                        <div class="timeline-org">Deloitte USI · RRC</div>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <span class="timeline-year">CFA</span>
+                    <div>
+                        <div class="timeline-role">Level 2 Candidate</div>
+                        <div class="timeline-org">CFA Institute</div>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <span class="timeline-year">MBA</span>
+                    <div>
+                        <div class="timeline-role">Master of Business Administration</div>
+                        <div class="timeline-org">Xavier Institute of Management, Bhubaneswar</div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-  </section>
+</section>
 
-  <!-- PROJECTS -->
-  <section id="projects">
+<!-- PROJECTS -->
+<section id="projects">
     <div class="section-header">
-      <span class="section-tag">Work</span>
-      <h2 class="section-title">Projects</h2>
+        <span class="section-tag">Work</span>
+        <h2 class="section-title">Projects</h2>
     </div>
     <table class="projects-table">
-      <thead>
+        <thead>
         <tr>
-          <th style="width:55%">Project</th>
-          <th style="width:15%">Stack</th>
-          <th style="width:15%">Status</th>
-          <th style="width:15%">Link</th>
+            <th style="width:55%">Project</th>
+            <th style="width:15%">Stack</th>
+            <th style="width:15%">Status</th>
+            <th style="width:15%">Link</th>
         </tr>
-      </thead>
-      <tbody>
+        </thead>
+        <tbody>
         <tr>
-          <td>
-            <div class="proj-name">DCF Model</div>
-            <div class="proj-desc">
-              Interactive discounted cash flow tool for Nifty 50 stocks — pulls live
-              market data, lets you adjust revenue growth, margins, WACC, and terminal
-              growth, and returns intrinsic value with a sensitivity table.
-            </div>
-            <span class="proj-tag">Valuation</span>
-            <span class="proj-tag">Python</span>
-          </td>
-          <td style="color: var(--text); font-size:12px; vertical-align:top; padding-top:24px;">
-            Python · Streamlit
-          </td>
-          <td style="vertical-align:top; padding-top:24px;">
-            <span class="proj-status live">Live</span>
-          </td>
-          <td style="vertical-align:top; padding-top:24px;">
-            <a href="https://nifty50-dcf.streamlit.app/" target="_blank" rel="noopener" class="proj-link">Open app →</a>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <div class="proj-name">AML Typology Explorer</div>
-            <div class="proj-desc">
-              Searchable reference of money laundering typologies, red flags, and
-              control mappings drawn from FATF guidance and practitioner experience.
-            </div>
-            <span class="proj-tag">AML</span>
-            <span class="proj-tag">Compliance</span>
-          </td>
-          <td style="color: var(--text); font-size:12px; vertical-align:top; padding-top:24px;">
-            Python · Streamlit
-          </td>
-          <td style="vertical-align:top; padding-top:24px;">
-            <span class="proj-status wip">Up next</span>
-          </td>
-          <td style="vertical-align:top; padding-top:24px;">
-            <a href="https://github.com/2312rudresh-max" target="_blank" rel="noopener" class="proj-link">Follow progress →</a>
-          </td>
+            <td>
+                <div class="proj-name">Valuation Suite</div>
+                <div class="proj-desc">
+                    Four-model intrinsic valuation tool for Nifty 50 stocks — FCFF, FCFE, DDM,
+                    and Residual Income, all driven by live market data with CAPM-based cost
+                    of equity. Built to handle both regular companies and financials/banks.
+                </div>
+                <span class="proj-tag">Valuation</span>
+                <span class="proj-tag">Python</span>
+            </td>
+            <td style="color: var(--text); font-size:12px; vertical-align:top; padding-top:24px;">
+                Python · Streamlit
+            </td>
+            <td style="vertical-align:top; padding-top:24px;">
+                <span class="proj-status live">Live</span>
+            </td>
+            <td style="vertical-align:top; padding-top:24px;">
+                <a href="https://nifty50-dcf.streamlit.app/" target="_blank" rel="noopener" class="proj-link">Open app
+                    →</a>
+            </td>
         </tr>
         <tr>
-          <td>
-            <div class="proj-name">Equity Screener</div>
-            <div class="proj-desc">
-              Multi-factor screener filtering listed equities by valuation multiples,
-              profitability, and growth metrics. Exportable watchlist output.
-            </div>
-            <span class="proj-tag">Equity Research</span>
-            <span class="proj-tag">Data</span>
-          </td>
-          <td style="color: var(--text); font-size:12px; vertical-align:top; padding-top:24px;">
-            Python · Streamlit
-          </td>
-          <td style="vertical-align:top; padding-top:24px;">
-            <span class="proj-status wip">Up next</span>
-          </td>
-          <td style="vertical-align:top; padding-top:24px;">
-            <a href="https://github.com/2312rudresh-max" target="_blank" rel="noopener" class="proj-link">Follow progress →</a>
-          </td>
+            <td>
+                <div class="proj-name">AML Typology Explorer</div>
+                <div class="proj-desc">
+                    Searchable reference of money laundering typologies, red flags, and
+                    control mappings drawn from FATF guidance and practitioner experience.
+                </div>
+                <span class="proj-tag">AML</span>
+                <span class="proj-tag">Compliance</span>
+            </td>
+            <td style="color: var(--text); font-size:12px; vertical-align:top; padding-top:24px;">
+                Python · Streamlit
+            </td>
+            <td style="vertical-align:top; padding-top:24px;">
+                <span class="proj-status wip">Up next</span>
+            </td>
+            <td style="vertical-align:top; padding-top:24px;">
+                <a href="https://github.com/2312rudresh-max" target="_blank" rel="noopener" class="proj-link">Follow
+                    progress →</a>
+            </td>
         </tr>
-      </tbody>
+        <tr>
+            <td>
+                <div class="proj-name">Equity Screener</div>
+                <div class="proj-desc">
+                    Multi-factor screener filtering listed equities by valuation multiples,
+                    profitability, and growth metrics. Exportable watchlist output.
+                </div>
+                <span class="proj-tag">Equity Research</span>
+                <span class="proj-tag">Data</span>
+            </td>
+            <td style="color: var(--text); font-size:12px; vertical-align:top; padding-top:24px;">
+                Python · Streamlit
+            </td>
+            <td style="vertical-align:top; padding-top:24px;">
+                <span class="proj-status wip">Up next</span>
+            </td>
+            <td style="vertical-align:top; padding-top:24px;">
+                <a href="https://github.com/2312rudresh-max" target="_blank" rel="noopener" class="proj-link">Follow
+                    progress →</a>
+            </td>
+        </tr>
+        </tbody>
     </table>
-  </section>
+</section>
 
-  <!-- SKILLS -->
-  <section id="skills">
+<!-- SKILLS -->
+<section id="skills">
     <div class="section-header">
-      <span class="section-tag">Toolkit</span>
-      <h2 class="section-title">Skills</h2>
+        <span class="section-tag">Toolkit</span>
+        <h2 class="section-title">Skills</h2>
     </div>
     <div class="skills-grid">
-      <div class="skill-cell">
-        <div class="skill-category">Finance</div>
-        <ul class="skill-list">
-          <li>Discounted Cash Flow (DCF)</li>
-          <li>Financial Statement Analysis</li>
-          <li>AML / Transaction Monitoring</li>
-          <li>Regulatory Risk &amp; Compliance</li>
-          <li>CFA Curriculum (L1 passed, L2)</li>
-        </ul>
-      </div>
-      <div class="skill-cell">
-        <div class="skill-category">Technical</div>
-        <ul class="skill-list">
-          <li>Python (Pandas, NumPy)</li>
-          <li>Streamlit — data apps</li>
-          <li>Excel / Financial Modelling</li>
-          <li>Data visualisation</li>
-          <li>SQL (working knowledge)</li>
-        </ul>
-      </div>
-      <div class="skill-cell">
-        <div class="skill-category">Consulting</div>
-        <ul class="skill-list">
-          <li>Client advisory — US banks</li>
-          <li>Control framework design</li>
-          <li>Stakeholder communication</li>
-          <li>Report writing &amp; documentation</li>
-        </ul>
-      </div>
-      <div class="skill-cell">
-        <div class="skill-category">Learning Now</div>
-        <ul class="skill-list">
-          <li>Valuation (Damodaran)</li>
-          <li>Python for finance projects</li>
-          <li>CFA Level 3 preparation</li>
-          <li>Corporate development concepts</li>
-        </ul>
-      </div>
+        <div class="skill-cell">
+            <div class="skill-category">Finance</div>
+            <ul class="skill-list">
+                <li>Discounted Cash Flow (DCF)</li>
+                <li>Financial Statement Analysis</li>
+                <li>AML / Transaction Monitoring</li>
+                <li>Regulatory Risk &amp; Compliance</li>
+                <li>CFA Curriculum (L1 passed, L2)</li>
+            </ul>
+        </div>
+        <div class="skill-cell">
+            <div class="skill-category">Technical</div>
+            <ul class="skill-list">
+                <li>Python (Pandas, NumPy)</li>
+                <li>Streamlit — data apps</li>
+                <li>Excel / Financial Modelling</li>
+                <li>Data visualisation</li>
+                <li>SQL (working knowledge)</li>
+            </ul>
+        </div>
+        <div class="skill-cell">
+            <div class="skill-category">Consulting</div>
+            <ul class="skill-list">
+                <li>Client advisory — US banks</li>
+                <li>Control framework design</li>
+                <li>Stakeholder communication</li>
+                <li>Report writing &amp; documentation</li>
+            </ul>
+        </div>
+        <div class="skill-cell">
+            <div class="skill-category">Learning Now</div>
+            <ul class="skill-list">
+                <li>Valuation (Damodaran)</li>
+                <li>Python for finance projects</li>
+                <li>CFA Level 3 preparation</li>
+                <li>Corporate development concepts</li>
+            </ul>
+        </div>
     </div>
-  </section>
+</section>
 
-  <!-- ART -->
-  <section id="art">
+<!-- ART -->
+<section id="art">
     <div class="section-header">
-      <span class="section-tag">Outside the spreadsheets</span>
-      <h2 class="section-title">Art</h2>
+        <span class="section-tag">Outside the spreadsheets</span>
+        <h2 class="section-title">Art</h2>
     </div>
     <div class="extra-grid">
-      <div class="extra-card reveal">
-        <div class="extra-card-tag">CGI Short Film</div>
-        <p style="margin-bottom: 16px;">
-          "Bounce" — a 3D animated short film I worked on during my time at
-          X-Gen College of Visual Art, exploring CGI animation and storytelling
-          from the ground up.
-        </p>
-        <a href="https://www.youtube.com/watch?v=rDVcUaFlMIw" target="_blank" rel="noopener" class="proj-link">Watch on YouTube →</a>
-      </div>
-      <div class="extra-card reveal">
-        <div class="extra-card-tag">2D Animation</div>
-        <p style="margin-bottom: 16px;">
-          Messing around with 2D animation — mostly fast, chaotic, internet-brainrot
-          style edits. Not serious, just fun to make.
-        </p>
-        <a href="https://www.youtube.com/watch?v=NLU6nibMKng" target="_blank" rel="noopener" class="proj-link">Watch on YouTube →</a>
-      </div>
-      <div class="extra-card reveal">
-        <div class="extra-card-tag">3D Modeling</div>
-        <p style="margin-bottom: 16px;">
-          A 3D car model built in Maya — modeling, texturing, and lighting practice
-          outside of the CGI short film work.
-        </p>
-        <a href="https://www.youtube.com/watch?v=Efv7oKTK7SU" target="_blank" rel="noopener" class="proj-link">Watch on YouTube →</a>
-      </div>
-      <div class="extra-card reveal">
-        <div class="extra-card-tag">Sketching</div>
-        <p>Placeholder — a few pieces coming soon. Mostly pencil and ink studies, sketched between meetings and on weekends.</p>
-      </div>
-      <div class="extra-card reveal">
-        <div class="extra-card-tag">Photography</div>
-        <p>Placeholder — street and travel photography. A gallery is in progress.</p>
-      </div>
+        <div class="extra-card reveal">
+            <div class="extra-card-tag">CGI Short Film</div>
+            <p style="margin-bottom: 16px;">
+                "Bounce" — a 3D animated short film I worked on during my time at
+                X-Gen College of Visual Art, exploring CGI animation and storytelling
+                from the ground up.
+            </p>
+            <a href="https://www.youtube.com/watch?v=rDVcUaFlMIw" target="_blank" rel="noopener" class="proj-link">Watch
+                on YouTube →</a>
+        </div>
+        <div class="extra-card reveal">
+            <div class="extra-card-tag">2D Animation</div>
+            <p style="margin-bottom: 16px;">
+                Messing around with 2D animation — mostly fast, chaotic, internet-brainrot
+                style edits. Not serious, just fun to make.
+            </p>
+            <a href="https://www.youtube.com/watch?v=NLU6nibMKng" target="_blank" rel="noopener" class="proj-link">Watch
+                on YouTube →</a>
+        </div>
+        <div class="extra-card reveal">
+            <div class="extra-card-tag">3D Modeling</div>
+            <p style="margin-bottom: 16px;">
+                A 3D car model built in Maya — modeling, texturing, and lighting practice
+                outside of the CGI short film work.
+            </p>
+            <a href="https://www.youtube.com/watch?v=Efv7oKTK7SU" target="_blank" rel="noopener" class="proj-link">Watch
+                on YouTube →</a>
+        </div>
+        <div class="extra-card reveal">
+            <div class="extra-card-tag">Sketching</div>
+            <p>Placeholder — a few pieces coming soon. Mostly pencil and ink studies, sketched between meetings and on
+                weekends.</p>
+        </div>
+        <div class="extra-card reveal">
+            <div class="extra-card-tag">Photography</div>
+            <p>Placeholder — street and travel photography. A gallery is in progress.</p>
+        </div>
     </div>
-  </section>
+</section>
 
-  <!--
-    HOBBIES SECTION - hidden until real content is ready.
-    To re-enable: delete this comment line and the closing comment
-    marker further down, then add a nav link pointing to #hobbies.
+<!--
+  HOBBIES SECTION - hidden until real content is ready.
+  To re-enable: delete this comment line and the closing comment
+  marker further down, then add a nav link pointing to #hobbies.
 
-  HOBBIES SECTION
-  <section id="hobbies">
-    <div class="section-header">
-      <span class="section-tag">Off the clock</span>
-      <h2 class="section-title">Hobbies</h2>
+HOBBIES SECTION
+<section id="hobbies">
+  <div class="section-header">
+    <span class="section-tag">Off the clock</span>
+    <h2 class="section-title">Hobbies</h2>
+  </div>
+  <div class="extra-grid">
+    <div class="extra-card reveal">
+      <div class="extra-card-tag">Reading</div>
+      <p>Placeholder — currently working through a stack of finance, history, and fiction. List coming soon.</p>
     </div>
-    <div class="extra-grid">
-      <div class="extra-card reveal">
-        <div class="extra-card-tag">Reading</div>
-        <p>Placeholder — currently working through a stack of finance, history, and fiction. List coming soon.</p>
-      </div>
-      <div class="extra-card reveal">
-        <div class="extra-card-tag">Fitness</div>
-        <p>Placeholder — gym and running. Tracking progress and goals here eventually.</p>
-      </div>
-      <div class="extra-card reveal">
-        <div class="extra-card-tag">Travel</div>
-        <p>Placeholder — exploring new cities and cuisines whenever possible. Notes and photos to follow.</p>
-      </div>
+    <div class="extra-card reveal">
+      <div class="extra-card-tag">Fitness</div>
+      <p>Placeholder — gym and running. Tracking progress and goals here eventually.</p>
     </div>
-  </section>
-  -->
+    <div class="extra-card reveal">
+      <div class="extra-card-tag">Travel</div>
+      <p>Placeholder — exploring new cities and cuisines whenever possible. Notes and photos to follow.</p>
+    </div>
+  </div>
+</section>
+-->
 
-  <!-- CONTACT -->
-  <section id="contact">
+<!-- CONTACT -->
+<section id="contact">
     <div class="contact-line">
-      Open to <span>valuation</span> and<br/>equity research roles.
+        Open to <span>valuation</span> and<br/>equity research roles.
     </div>
     <div class="contact-links">
-      <div class="contact-item">
-        <span class="contact-item-label">Email</span>
-        <a href="https://mail.google.com/mail/?view=cm&fs=1&to=2312rudresh@gmail.com" target="_blank" rel="noopener">2312rudresh@gmail.com</a>
-      </div>
-      <div class="contact-item">
-        <span class="contact-item-label">LinkedIn</span>
-        <a href="https://linkedin.com/in/rudresh-k-39721712b/" target="_blank" rel="noopener">linkedin.com/in/rudresh-k-39721712b/</a>
-      </div>
-      <div class="contact-item">
-        <span class="contact-item-label">GitHub</span>
-        <a href="https://github.com/2312rudresh-max" target="_blank" rel="noopener">github.com/2312rudresh-max</a>
-      </div>
+        <div class="contact-item">
+            <span class="contact-item-label">Email</span>
+            <a href="https://mail.google.com/mail/?view=cm&fs=1&to=2312rudresh@gmail.com" target="_blank"
+               rel="noopener">2312rudresh@gmail.com</a>
+        </div>
+        <div class="contact-item">
+            <span class="contact-item-label">LinkedIn</span>
+            <a href="https://linkedin.com/in/rudresh-k-39721712b/" target="_blank" rel="noopener">linkedin.com/in/rudresh-k-39721712b/</a>
+        </div>
+        <div class="contact-item">
+            <span class="contact-item-label">GitHub</span>
+            <a href="https://github.com/2312rudresh-max" target="_blank" rel="noopener">github.com/2312rudresh-max</a>
+        </div>
     </div>
-  </section>
+</section>
 
-  <!-- end of page -->
+<!-- end of page -->
 
-  <script>
+<script>
     // Ticker typewriter
     const roles = [
-      'Valuation Analyst',
-      'AML Specialist',
-      'CFA Candidate',
-      'Financial Modeller',
-      'Equity Research'
+        'Valuation Analyst',
+        'AML Specialist',
+        'CFA Candidate',
+        'Financial Modeller',
+        'Equity Research'
     ];
 
     let roleIndex = 0;
@@ -933,28 +1005,28 @@
     const el = document.getElementById('ticker-text');
 
     function tick() {
-      const current = roles[roleIndex];
+        const current = roles[roleIndex];
 
-      if (!deleting) {
-        charIndex++;
-        el.innerHTML = current.slice(0, charIndex) + '<span class="cursor"></span>';
-        if (charIndex === current.length) {
-          deleting = true;
-          pauseTimer = setTimeout(tick, 1800);
-          return;
+        if (!deleting) {
+            charIndex++;
+            el.innerHTML = current.slice(0, charIndex) + '<span class="cursor"></span>';
+            if (charIndex === current.length) {
+                deleting = true;
+                pauseTimer = setTimeout(tick, 1800);
+                return;
+            }
+            setTimeout(tick, 68);
+        } else {
+            charIndex--;
+            el.innerHTML = current.slice(0, charIndex) + '<span class="cursor"></span>';
+            if (charIndex === 0) {
+                deleting = false;
+                roleIndex = (roleIndex + 1) % roles.length;
+                setTimeout(tick, 300);
+                return;
+            }
+            setTimeout(tick, 32);
         }
-        setTimeout(tick, 68);
-      } else {
-        charIndex--;
-        el.innerHTML = current.slice(0, charIndex) + '<span class="cursor"></span>';
-        if (charIndex === 0) {
-          deleting = false;
-          roleIndex = (roleIndex + 1) % roles.length;
-          setTimeout(tick, 300);
-          return;
-        }
-        setTimeout(tick, 32);
-      }
     }
 
     tick();
@@ -962,15 +1034,15 @@
     // Scroll reveal
     const revealEls = document.querySelectorAll('.reveal');
     const revealObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('is-visible');
-          revealObserver.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.15 });
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('is-visible');
+                revealObserver.unobserve(entry.target);
+            }
+        });
+    }, {threshold: 0.15});
     revealEls.forEach(el => revealObserver.observe(el));
-  </script>
+</script>
 
 </body>
 </html>
