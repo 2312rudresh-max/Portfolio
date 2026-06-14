@@ -198,6 +198,34 @@ def fetch_financials(ticker: str):
     return info, cf, income, balance
 
 
+@st.cache_data(ttl=3600)
+def fetch_universe_multiples(tickers: dict):
+    """Fetch key multiples for the whole Nifty 50 universe. Cached for 1 hour."""
+    rows = []
+    for name, tkr in tickers.items():
+        try:
+            info = yf.Ticker(tkr).info
+            rows.append({
+                "Company": name,
+                "Sector": info.get("sector", "Unknown"),
+                "Price": info.get("currentPrice") or info.get("regularMarketPrice") or np.nan,
+                "P/E": info.get("trailingPE"),
+                "P/B": info.get("priceToBook"),
+                "EV/EBITDA": info.get("enterpriseToEbitda"),
+                "P/S": info.get("priceToSalesTrailing12Months"),
+                "EPS": info.get("trailingEps"),
+                "BVPS": info.get("bookValue"),
+                "RevPerShare": info.get("revenuePerShare"),
+                "EBITDA": info.get("ebitda"),
+                "TotalDebt": info.get("totalDebt"),
+                "TotalCash": info.get("totalCash"),
+                "Shares": info.get("sharesOutstanding"),
+            })
+        except Exception:
+            continue
+    return pd.DataFrame(rows)
+
+
 def safe_get(df, keys, default=None):
     """Try multiple row keys on a DataFrame, return first match."""
     if df is None or df.empty:
@@ -345,7 +373,7 @@ with st.sidebar:
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 st.markdown('<div class="hero-title">Nifty 50 Valuation Suite</div>', unsafe_allow_html=True)
-st.markdown('<div class="hero-sub">Intrinsic value · Live market data · FCFF · FCFE · DDM · Residual Income</div>', unsafe_allow_html=True)
+st.markdown('<div class="hero-sub">Intrinsic value · Relative value · Live market data · FCFF · FCFE · DDM · RIM · Multiples</div>', unsafe_allow_html=True)
 
 with st.spinner(f"Fetching {company_name} financials..."):
     try:
@@ -401,7 +429,7 @@ if fetch_ok:
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    tab1, tab2, tab3, tab4 = st.tabs(["FCFF · DCF", "FCFE", "DDM", "Residual Income"])
+    tab1, tab2, tab3, tab4, tab5 = st.tabs(["FCFF · DCF", "FCFE", "DDM", "Residual Income", "Relative Valuation"])
 
     # ══════════════════════════════════════════════════════════════════════════
     # TAB 1 — FCFF DCF
@@ -661,6 +689,120 @@ if fetch_ok:
                         "₹": [f"₹{bvps0:.2f}", f"₹{result_rim['pv_ris']:.2f}", f"₹{result_rim['pv_tv']:.2f}", f"₹{result_rim['value_per_share']:.2f}"],
                     })
                     st.dataframe(bridge_rim, hide_index=True, use_container_width=True)
+
+    # ══════════════════════════════════════════════════════════════════════════
+    # TAB 5 — RELATIVE VALUATION
+    # ══════════════════════════════════════════════════════════════════════════
+    with tab5:
+        st.markdown(
+            "<div class=\"model-note\">Relative valuation — compares this company's "
+            "P/E, P/B, EV/EBITDA, and P/S multiples against the median of its Nifty 50 "
+            "sector peers, then estimates an implied price by applying peer-median "
+            "multiples to this company's own fundamentals.</div>", unsafe_allow_html=True)
+
+        with st.spinner("Fetching sector peer multiples (first load may take a minute)..."):
+            universe = fetch_universe_multiples(NIFTY50)
+
+        my_sector = info.get("sector", "Unknown")
+        peers = universe[(universe["Sector"] == my_sector) & (universe["Company"] != company_name)]
+
+        if peers.empty or my_sector == "Unknown":
+            st.warning(f"Not enough sector peer data available for {company_name} (sector: {my_sector}).")
+        else:
+            st.markdown(f'<div class="data-note">Sector: {my_sector} · {len(peers)} peer(s) found in Nifty 50</div>', unsafe_allow_html=True)
+
+            def peer_median(col):
+                vals = pd.to_numeric(peers[col], errors="coerce")
+                vals = vals[vals > 0]
+                return vals.median() if not vals.empty else None
+
+            med_pe = peer_median("P/E")
+            med_pb = peer_median("P/B")
+            med_evebitda = peer_median("EV/EBITDA")
+            med_ps = peer_median("P/S")
+
+            eps = info.get("trailingEps")
+            ebitda = info.get("ebitda")
+            rev_per_share = info.get("revenuePerShare")
+
+            implied = {}
+            if med_pe and eps and eps > 0:
+                implied["P/E"] = med_pe * eps
+            if med_pb and bvps0 and bvps0 > 0:
+                implied["P/B"] = med_pb * bvps0
+            if med_ps and rev_per_share and rev_per_share > 0:
+                implied["P/S"] = med_ps * rev_per_share
+            if med_evebitda and ebitda and ebitda > 0 and shares:
+                ev = med_evebitda * ebitda
+                equity_val = ev - (net_debt_cr * 1e7)
+                implied["EV/EBITDA"] = equity_val / shares
+
+            left, right = st.columns([1, 1.4])
+
+            with left:
+                st.markdown('<div class="section-label">This Company vs Sector Median</div>', unsafe_allow_html=True)
+                comp_table = pd.DataFrame({
+                    "Multiple": ["P/E", "P/B", "EV/EBITDA", "P/S"],
+                    company_name: [
+                        f"{info.get('trailingPE'):.1f}x" if info.get("trailingPE") else "N/A",
+                        f"{info.get('priceToBook'):.2f}x" if info.get("priceToBook") else "N/A",
+                        f"{info.get('enterpriseToEbitda'):.1f}x" if info.get("enterpriseToEbitda") else "N/A",
+                        f"{info.get('priceToSalesTrailing12Months'):.1f}x" if info.get("priceToSalesTrailing12Months") else "N/A",
+                    ],
+                    "Sector Median": [
+                        f"{med_pe:.1f}x" if med_pe else "N/A",
+                        f"{med_pb:.2f}x" if med_pb else "N/A",
+                        f"{med_evebitda:.1f}x" if med_evebitda else "N/A",
+                        f"{med_ps:.1f}x" if med_ps else "N/A",
+                    ],
+                })
+                st.dataframe(comp_table, hide_index=True, use_container_width=True)
+
+                st.markdown("<br>", unsafe_allow_html=True)
+                st.markdown('<div class="section-label">Sector Peers</div>', unsafe_allow_html=True)
+                peer_display = peers[["Company", "P/E", "P/B", "EV/EBITDA", "P/S"]].copy()
+                for col in ["P/E", "P/B", "EV/EBITDA", "P/S"]:
+                    peer_display[col] = peer_display[col].apply(lambda v: f"{v:.1f}x" if pd.notna(v) else "N/A")
+                st.dataframe(peer_display, hide_index=True, use_container_width=True)
+
+            with right:
+                if not implied:
+                    st.warning("Could not compute implied price — insufficient peer or fundamental data.")
+                else:
+                    implied_avg = sum(implied.values()) / len(implied)
+                    upside_rv = ((implied_avg - current_price) / current_price) * 100 if current_price else 0
+
+                    c1, c2, c3 = st.columns(3)
+                    with c1:
+                        metric_card("Current Price", f"₹{current_price:,.0f}")
+                    with c2:
+                        metric_card("Implied Price (avg)", f"₹{implied_avg:,.0f}", "up" if upside_rv > 0 else "down")
+                    with c3:
+                        metric_card("Upside / Downside", f"{upside_rv:+.1f}%", "up" if upside_rv > 0 else "down")
+
+                    vclass, vtext = verdict(upside_rv)
+                    st.markdown(f'<div class="verdict-banner {vclass}">{vtext}</div>', unsafe_allow_html=True)
+                    st.markdown("<br>", unsafe_allow_html=True)
+
+                    st.markdown('<div class="section-label">Implied Price by Multiple (₹)</div>', unsafe_allow_html=True)
+                    implied_table = pd.DataFrame({
+                        "Multiple": list(implied.keys()),
+                        "Peer Median": [
+                            f"{med_pe:.1f}x" if k == "P/E" else
+                            f"{med_pb:.2f}x" if k == "P/B" else
+                            f"{med_evebitda:.1f}x" if k == "EV/EBITDA" else
+                            f"{med_ps:.1f}x"
+                            for k in implied.keys()
+                        ],
+                        "Implied Price (₹)": [f"₹{v:,.0f}" for v in implied.values()],
+                    })
+                    st.dataframe(implied_table, hide_index=True, use_container_width=True)
+
+                    st.markdown(
+                        "<p class=\"data-note\">Implied price = peer-median multiple × this company's "
+                        "corresponding per-share fundamental (EPS, BVPS, revenue/share, or EBITDA-derived "
+                        "equity value). Average across available multiples.</p>",
+                        unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
     st.markdown(
