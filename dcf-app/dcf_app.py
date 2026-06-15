@@ -2,6 +2,7 @@ import streamlit as st
 import yfinance as yf
 import pandas as pd
 import numpy as np
+import math
 
 # ── Page config ──────────────────────────────────────────────────────────────
 st.set_page_config(
@@ -226,6 +227,63 @@ def fetch_universe_multiples(tickers: dict):
     return pd.DataFrame(rows)
 
 
+@st.cache_data(ttl=3600)
+def fetch_historical_volatility(ticker: str):
+    """Annualized volatility of daily log returns over the last 1 year."""
+    hist = yf.Ticker(ticker).history(period="1y")
+    if hist.empty or len(hist) < 30:
+        return None
+    log_returns = np.log(hist["Close"] / hist["Close"].shift(1)).dropna()
+    return float(log_returns.std() * np.sqrt(252))
+
+
+def norm_cdf(x):
+    return 0.5 * (1 + math.erf(x / math.sqrt(2)))
+
+
+def black_scholes(S, K, T, r, sigma, option_type="call"):
+    if sigma <= 0 or T <= 0:
+        intrinsic = max(S - K, 0) if option_type == "call" else max(K - S, 0)
+        return intrinsic, 0.0, 0.0, 0.0
+    d1 = (math.log(S / K) + (r + 0.5 * sigma ** 2) * T) / (sigma * math.sqrt(T))
+    d2 = d1 - sigma * math.sqrt(T)
+    if option_type == "call":
+        price = S * norm_cdf(d1) - K * math.exp(-r * T) * norm_cdf(d2)
+        delta = norm_cdf(d1)
+    else:
+        price = K * math.exp(-r * T) * norm_cdf(-d2) - S * norm_cdf(-d1)
+        delta = norm_cdf(d1) - 1
+    return price, delta, d1, d2
+
+
+def merton_model(equity_value, debt_value, sigma_equity, r, T):
+    """
+    Simplified Merton/KMV approach: equity = call option on firm assets,
+    strike = face value of debt. Uses leverage-scaled volatility approximation
+    (no iterative re-solving) to keep this tractable without scipy.
+    """
+    V0 = equity_value + debt_value
+    if V0 <= 0 or debt_value <= 0:
+        return None
+    sigma_V = sigma_equity * (equity_value / V0)
+    if sigma_V <= 0:
+        return None
+
+    price, delta, d1, d2 = black_scholes(V0, debt_value, T, r, sigma_V, "call")
+
+    dd = (math.log(V0 / debt_value) + (r - 0.5 * sigma_V ** 2) * T) / (sigma_V * math.sqrt(T))
+    pd_default = norm_cdf(-dd)
+
+    return {
+        "asset_value": V0,
+        "asset_vol": sigma_V,
+        "implied_equity": price,
+        "delta": delta,
+        "distance_to_default": dd,
+        "prob_default": pd_default,
+    }
+
+
 def safe_get(df, keys, default=None):
     """Try multiple row keys on a DataFrame, return first match."""
     if df is None or df.empty:
@@ -373,7 +431,7 @@ with st.sidebar:
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 st.markdown('<div class="hero-title">Nifty 50 Valuation Suite</div>', unsafe_allow_html=True)
-st.markdown('<div class="hero-sub">Intrinsic value · Relative value · Live market data · FCFF · FCFE · DDM · RIM · Multiples</div>', unsafe_allow_html=True)
+st.markdown('<div class="hero-sub">Intrinsic · Relative · Option-Based · Live Market Data · FCFF · FCFE · DDM · RIM · Multiples · Merton</div>', unsafe_allow_html=True)
 
 with st.spinner(f"Fetching {company_name} financials..."):
     try:
@@ -429,7 +487,7 @@ if fetch_ok:
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    tab1, tab2, tab3, tab4, tab5 = st.tabs(["FCFF · DCF", "FCFE", "DDM", "Residual Income", "Relative Valuation"])
+    tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["FCFF · DCF", "FCFE", "DDM", "Residual Income", "Relative Valuation", "Option Pricing"])
 
     # ══════════════════════════════════════════════════════════════════════════
     # TAB 1 — FCFF DCF
@@ -803,6 +861,127 @@ if fetch_ok:
                         "corresponding per-share fundamental (EPS, BVPS, revenue/share, or EBITDA-derived "
                         "equity value). Average across available multiples.</p>",
                         unsafe_allow_html=True)
+
+    # ══════════════════════════════════════════════════════════════════════════
+    # TAB 6 — OPTION PRICING
+    # ══════════════════════════════════════════════════════════════════════════
+    with tab6:
+        st.markdown(
+            "<div class=\"model-note\">Option pricing as a third valuation lens (Damodaran's "
+            "framework): equity is treated as a call option on the firm's assets, with total "
+            "debt as the strike price (Merton/KMV model). Most informative for highly leveraged "
+            "or distressed companies — for low-debt firms, equity converges to enterprise value "
+            "and the option framing adds little. A general Black-Scholes calculator is included "
+            "below for reference.</div>", unsafe_allow_html=True)
+
+        hist_vol = fetch_historical_volatility(ticker)
+
+        if hist_vol is None:
+            st.warning("Not enough historical price data to estimate volatility for this stock.")
+        else:
+            equity_value = current_price * shares
+            debt_value = total_debt_cr * 1e7
+
+            st.markdown('<div class="section-label">Inputs (from live data)</div>', unsafe_allow_html=True)
+            c1, c2, c3, c4 = st.columns(4)
+            with c1:
+                metric_card("Equity Value", f"₹{equity_value/1e7:,.0f} Cr")
+            with c2:
+                metric_card("Total Debt (Strike)", f"₹{debt_value/1e7:,.0f} Cr")
+            with c3:
+                metric_card("Equity Volatility (1Y)", f"{hist_vol*100:.1f}%")
+            with c4:
+                metric_card("Risk-Free Rate", f"{risk_free*100:.1f}%")
+
+            st.markdown("<br>", unsafe_allow_html=True)
+            left, right = st.columns([1, 1.4])
+
+            with left:
+                st.markdown('<div class="section-label">Merton Model — Equity as Call Option</div>', unsafe_allow_html=True)
+                debt_maturity = st.slider("Debt Maturity / Time Horizon (years)", 0.5, 5.0, 1.0, 0.5, key="merton_T")
+
+                if debt_value <= 0:
+                    st.info(
+                        f"{company_name} carries little to no debt. With strike ≈ 0, the call "
+                        "option is always deep in-the-money and equity value converges to firm "
+                        "value — the Merton framework adds limited insight for unleveraged "
+                        "companies, but is shown below for completeness.")
+                    debt_value_calc = max(debt_value, 1)
+                else:
+                    debt_value_calc = debt_value
+
+                merton = merton_model(equity_value, debt_value_calc, hist_vol, risk_free, debt_maturity)
+
+            with right:
+                if merton is None:
+                    st.warning("Could not compute Merton model output for this company.")
+                else:
+                    implied_equity_cr = merton["implied_equity"] / 1e7
+                    current_equity_cr = equity_value / 1e7
+                    upside_opt = ((implied_equity_cr - current_equity_cr) / current_equity_cr) * 100
+
+                    c1, c2, c3 = st.columns(3)
+                    with c1:
+                        metric_card("Market Equity Value", f"₹{current_equity_cr:,.0f} Cr")
+                    with c2:
+                        metric_card("Option-Implied Equity", f"₹{implied_equity_cr:,.0f} Cr", "up" if upside_opt > 0 else "down")
+                    with c3:
+                        metric_card("Difference", f"{upside_opt:+.1f}%", "up" if upside_opt > 0 else "down")
+
+                    vclass, vtext = verdict(upside_opt)
+                    st.markdown(f'<div class="verdict-banner {vclass}">{vtext}</div>', unsafe_allow_html=True)
+                    st.markdown("<br>", unsafe_allow_html=True)
+
+                    st.markdown('<div class="section-label">Credit Risk View (KMV-style)</div>', unsafe_allow_html=True)
+                    risk_table = pd.DataFrame({
+                        "Metric": ["Implied Asset Value", "Implied Asset Volatility",
+                                   "Distance to Default", "Implied Probability of Default (by T)"],
+                        "Value": [
+                            f"₹{merton['asset_value']/1e7:,.0f} Cr",
+                            f"{merton['asset_vol']*100:.1f}%",
+                            f"{merton['distance_to_default']:.2f}",
+                            f"{merton['prob_default']*100:.2f}%",
+                        ],
+                    })
+                    st.dataframe(risk_table, hide_index=True, use_container_width=True)
+                    st.markdown(
+                        "<p class=\"data-note\">Distance to default measures how many standard "
+                        "deviations the firm's asset value sits above its debt obligations — higher "
+                        "is safer. This is a simplified approximation (no iterative re-solving of "
+                        "asset value/volatility) and is for illustrative purposes only.</p>",
+                        unsafe_allow_html=True)
+
+            st.markdown("<br><br>", unsafe_allow_html=True)
+            st.markdown('<div class="section-label">Black-Scholes Calculator</div>', unsafe_allow_html=True)
+            st.markdown(
+                "<p class=\"data-note\">General-purpose option pricer — defaults are pre-filled "
+                "using this company's current price and estimated volatility, but can be freely "
+                "adjusted to price any hypothetical option.</p>", unsafe_allow_html=True)
+
+            bc1, bc2 = st.columns([1, 1.4])
+            with bc1:
+                S = st.number_input("Spot Price (₹)", value=float(current_price), min_value=0.01, key="bs_S")
+                K = st.number_input("Strike Price (₹)", value=float(round(current_price * 1.05, 2)), min_value=0.01, key="bs_K")
+                T_bs = st.slider("Time to Expiry (years)", 0.05, 3.0, 0.5, 0.05, key="bs_T")
+                sigma_bs = st.slider("Volatility (%)", 5.0, 100.0, round(hist_vol * 100, 1), 0.5, key="bs_sigma") / 100
+                r_bs = risk_free
+
+            with bc2:
+                call_price, call_delta, d1, d2 = black_scholes(S, K, T_bs, r_bs, sigma_bs, "call")
+                put_price, put_delta, _, _ = black_scholes(S, K, T_bs, r_bs, sigma_bs, "put")
+
+                cc1, cc2 = st.columns(2)
+                with cc1:
+                    metric_card("Call Price", f"₹{call_price:,.2f}")
+                with cc2:
+                    metric_card("Put Price", f"₹{put_price:,.2f}")
+
+                st.markdown("<br>", unsafe_allow_html=True)
+                bs_table = pd.DataFrame({
+                    "Metric": ["d1", "d2", "Call Delta", "Put Delta"],
+                    "Value": [f"{d1:.3f}", f"{d2:.3f}", f"{call_delta:.3f}", f"{put_delta:.3f}"],
+                })
+                st.dataframe(bs_table, hide_index=True, use_container_width=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
     st.markdown(
